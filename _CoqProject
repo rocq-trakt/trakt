@@ -1,8 +1,0 @@
--Q theories Trakt
--Q elpi Trakt.Elpi
-
-theories/InternalProofs.v
-theories/Database.v
-theories/Tactic.v
-theories/Commands.v
-theories/Trakt.v

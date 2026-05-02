@@ -9,7 +9,7 @@
 (*                           *  (see LICENSE file for the text of the license) *)
 (*******************************************************************************)
 
-From Coq Require Import Bool.
+From Stdlib Require Import Bool.
 
 Lemma is_true_symmetry : forall (b : bool), b = true -> true = b.
 Proof.

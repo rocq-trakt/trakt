@@ -1,0 +1,5 @@
+(rocq.theory
+ (generate_project_file)
+ (package rocq-trakt-test)
+ (name Trakt.Test)
+ (theories Stdlib elpi elpi_elpi Trakt))

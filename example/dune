@@ -1,0 +1,15 @@
+(rocq.theory
+ (generate_project_file)
+ (package rocq-trakt-example)
+ (name Trakt.Example)
+ (theories
+  Stdlib
+  elpi
+  elpi_elpi
+  HB
+  mathcomp.algebra
+  mathcomp.boot
+  mathcomp.fingroup
+  mathcomp.order
+  mathcomp.zify
+  Trakt))

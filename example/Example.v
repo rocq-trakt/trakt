@@ -7,7 +7,7 @@
    <= 1.19.0
  *)
 
-From Coq Require Import ZArith ZifyClasses ZifyBool ZifyInst.
+From Stdlib Require Import ZArith ZifyClasses ZifyBool ZifyInst.
 From mathcomp Require Import ssrint.
 
 From mathcomp.zify Require Import ssrZ zify_algebra.

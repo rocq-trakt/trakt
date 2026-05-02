@@ -1,9 +1,4 @@
-.*.aux
-.lia.cache
-*.glob
-*.vo
-*.vok
-*.vos
-*~
-.*.d
-Makefile.coq*
+_build/
+_opam/
+_RocqProject
+rocq-trakt.install
