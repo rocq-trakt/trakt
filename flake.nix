@@ -8,6 +8,7 @@
   outputs =
     inputs@{
       flake-parts,
+      self,
       nixpkgs,
       ...
     }:
@@ -17,32 +18,66 @@
         "x86_64-linux"
       ];
 
-      perSystem =
-        { pkgs, ... }:
-        rec {
-          packages = {
-            trakt = pkgs.rocqPackages.mkRocqDerivation {
-              pname = "trakt";
-              opam-name = "rocq-trakt";
+      flake = {
+        overlays.default = (
+          _: pkgs:
+          let
+            trakt =
+              {
+                mkRocqDerivation,
+                rocqPackages,
+                stdlib,
+                rocq-elpi,
+                ...
+              }:
+              mkRocqDerivation {
+                pname = "trakt";
 
-              src = ./.;
-              version = "nightly";
-              useDune = true;
+                src = ./.;
+                version = "nightly";
 
-              propagatedBuildInputs = [
-                pkgs.rocqPackages.stdlib
-                pkgs.rocqPackages.rocq-elpi
-              ];
+                opam-name = "rocq-trakt";
+                useDune = true;
 
-              meta = {
-                description = "A generic goal preprocessing tool for proof automation tactics in Rocq";
-                homepage = "https://github.com/rocq-trakt/trakt";
-                license = pkgs.lib.licenses.lgpl3;
+                propagatedBuildInputs = [
+                  stdlib
+                  rocq-elpi
+                ];
+
+                meta = {
+                  description = "A generic goal preprocessing tool for proof automation tactics in Rocq";
+                  homepage = "https://github.com/rocq-trakt/trakt";
+                  license = pkgs.lib.licenses.lgpl3;
+                };
               };
-            };
 
-            default = packages.trakt;
+            mkRocqPackages =
+              base:
+              base.overrideScope (
+                self: _: {
+                  trakt = self.callPackage trakt { };
+                }
+              );
+          in
+          {
+            rocqPackages = mkRocqPackages pkgs.rocqPackages;
+
+            rocqPackages_9_0 = mkRocqPackages pkgs.rocqPackages_9_0;
+            rocqPackages_9_1 = mkRocqPackages pkgs.rocqPackages_9_1;
+            rocqPackages_9_2 = mkRocqPackages pkgs.rocqPackages_9_2;
+          }
+        );
+      };
+
+      perSystem =
+        { pkgs, system, ... }:
+        rec {
+          _module.args.pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ self.overlays.default ];
           };
+
+          packages.default = pkgs.rocqPackages.trakt;
 
           checks = {
             example =
@@ -98,7 +133,7 @@
                 useDune = true;
 
                 propagatedBuildInputs = [
-                  packages.trakt
+                  pkgs.rocqPackages.trakt
                   zify
                 ];
               };
@@ -112,7 +147,7 @@
               useDune = true;
 
               propagatedBuildInputs = [
-                packages.trakt
+                pkgs.rocqPackages.trakt
               ];
             };
           };
