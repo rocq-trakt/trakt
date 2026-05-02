@@ -107,7 +107,7 @@ add-embedding Args :-
       "expected: ", {coq.term->string ExpectedEmbedThenInvIdT},
       "\ngot: ", {coq.term->string EmbedThenInvIdT}, "\n\n"
     ]},
-    pi y\ pi z\ copy (app [Embed, y]) z => copy (CondF y) (CondFE z),
+    pi y\ pi z\ (copy (app [Embed, y]) z => copy (CondF y) (CondFE z)),
     ExpectedInvThenEmbedCondIdT =
       {{ forall (x' : lp:T'), lp:(CondFE x') -> @eq lp:T' (lp:Embed (lp:EmbedInv x')) x' }},
     pi x'\

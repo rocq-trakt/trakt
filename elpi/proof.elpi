@@ -59,8 +59,7 @@ build.aux (proof.none T) {{ @id lp:T }}.
 build.aux (proof.of-term Term) Term.
 
 build.aux (proof.forall T PF CoqProofF) CoqProof :-
-  pi x\ decl x _ T =>
-    build.aux (PF x) (CoqPF x),
+  pi x\ (decl x _ T => build.aux (PF x) (CoqPF x)),
     if (CoqPF x = {{ id }}) (
       copy (app [{{ id }}, X]) X => copy (CoqProofF CoqPF) CoqProof
     ) (
@@ -69,8 +68,7 @@ build.aux (proof.forall T PF CoqProofF) CoqProof :-
 
 build.aux (proof.forall2 T U PF CoqProofF) CoqProof :-
   pi x\ decl x _ T =>
-    pi y\ decl y _ (U x) =>
-      build.aux (PF x y) (CoqPF x y),
+    pi y\ (decl y _ (U x) => build.aux (PF x y) (CoqPF x y)),
       if (CoqPF x y = {{ id }}) (
         copy (app [{{ id }}, X]) X => copy (CoqProofF CoqPF) CoqProof
       ) (

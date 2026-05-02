@@ -56,7 +56,7 @@ find-free-variables.aux {{ lp:A -> lp:B }} ETargetOpt Context FVInfoSet :- !,
   set-merge FVInfoSetA FVInfoSetB FVInfoSet.
 
 find-free-variables.aux (prod _ T F) ETargetOpt Context FVInfoSet' :- !,
-  pi x\ decl x _ T => find-free-variables.aux (F x) ETargetOpt Context (FVInfoSet x),
+  pi x\ (decl x _ T => find-free-variables.aux (F x) ETargetOpt Context (FVInfoSet x)),
   std.set.remove (pr x _) (FVInfoSet x) FVInfoSet'.
 
 find-free-variables.aux (app [F|Args]) ETargetOpt Context FVInfoSet' :- !,

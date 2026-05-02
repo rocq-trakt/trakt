@@ -45,15 +45,13 @@ Elpi Accumulate lp:{{
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
-    RuntimeRelCtx =>
-      preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof,
+    (RuntimeRelCtx => preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve InitialGoal NewGoals :-
     InitialGoal = goal Context _ InitialGoalTy _ [trm ETarget, trm LTarget],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
-    [] =>
-      preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof,
+    ([] => preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve InitialGoal NewGoals :-
@@ -61,21 +59,18 @@ Elpi Accumulate lp:{{
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
-    RuntimeRelCtx =>
-      preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof,
+    (RuntimeRelCtx => preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve InitialGoal NewGoals :-
     InitialGoal = goal Context _ InitialGoalTy _ [trm LTarget],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
-    [] =>
-      preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof,
+    ([] => preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve _ _ :-
     coq.error "usage: trakt [target embedding type] <bool|Prop> [with rel <relations>]".
 }}.
-Elpi Typecheck.
 
 Tactic Notation "trakt" constr(target) constr(logic_target) "with" "rel" constr(l) :=
   elpi trakt ltac_term:(target) ltac_term:(logic_target) ltac_term:(l).
@@ -112,8 +107,7 @@ Elpi Accumulate lp:{{
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
     coq.typecheck H T ok,
-    RuntimeRelCtx =>
-      preprocess-extra T [] (some ETarget) LTarget contravariant false T' P,
+    (RuntimeRelCtx => preprocess-extra T [] (some ETarget) LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
 
   solve Goal NewGoals :-
@@ -122,8 +116,7 @@ Elpi Accumulate lp:{{
     (H = global _ ; def H _ _ _ ; decl H _ _), !,
     coq.string->name S Name,
     coq.typecheck H T ok,
-    [] =>
-      preprocess-extra T [] (some ETarget) LTarget contravariant false T' P,
+    ([] => preprocess-extra T [] (some ETarget) LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
   
   solve Goal NewGoals :-
@@ -134,8 +127,7 @@ Elpi Accumulate lp:{{
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
     coq.typecheck H T ok,
-    RuntimeRelCtx =>
-      preprocess-extra T [] none LTarget contravariant false T' P,
+    (RuntimeRelCtx => preprocess-extra T [] none LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
     
   solve Goal NewGoals :-
@@ -144,8 +136,7 @@ Elpi Accumulate lp:{{
     (H = global _ ; def H _ _ _ ; decl H _ _), !,
     coq.string->name S Name,
     coq.typecheck H T ok,
-    [] =>
-      preprocess-extra T [] none LTarget contravariant false T' P,
+    ([] => preprocess-extra T [] none LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
   
   solve _ _ :-
@@ -156,7 +147,6 @@ Elpi Accumulate lp:{{
       "             [with rel <relations>]"
     ]}.
 }}.
-Elpi Typecheck.
 
 Tactic Notation "trakt_pose" constr(et) constr(lt) ":" constr(h) "as" ident(s) :=
   elpi trakt_pose ltac_term:(et) ltac_term:(lt) ltac_term:(h) ltac_string:(s).
@@ -189,7 +179,6 @@ Elpi Accumulate lp:{{
   solve _ _ :-
     coq.error "usage: trakt_boolify_arrows.".
 }}.
-Elpi Typecheck.
 
 Tactic Notation "trakt_boolify_arrows" := elpi trakt_boolify_arrows.
 
@@ -209,6 +198,5 @@ Elpi Accumulate lp:{{
   solve _ _ :-
     coq.error "usage: trakt_reorder_quantifiers.".
 }}.
-Elpi Typecheck.
 
 Tactic Notation "trakt_reorder_quantifiers" := elpi trakt_reorder_quantifiers.

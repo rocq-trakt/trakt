@@ -76,7 +76,7 @@ pred bind-back i:list term, i:term, o:term.
 bind-back [] Term Term.
 
 bind-back [X|Xs] Term Term' :-
-  pi x\ (copy X x :- !) => copy Term (F x), !,
+  pi x\ ((copy X x :- !) => copy Term (F x)), !,
   bind-back Xs (fun _ _ F) Term'.
 
 % pop a list of hypotheses in front of a type
