@@ -21,13 +21,6 @@
       flake = {
         lib = nixpkgs.lib.extend (
           self: _: {
-            fetchRocqDeps =
-              let
-                filt = drv: self.hasPrefix "rocq-" drv.meta.name;
-                mu = drv: [ drv ] ++ self.concatMap mu (self.filter filt drv.propagatedBuildInputs);
-              in
-              drvs: self.lists.unique (self.concatMap mu drvs);
-
             mkTrakt =
               let
                 isVersion = str: builtins.match "[0-9]+(\\.[0-9]+)*" str != null;

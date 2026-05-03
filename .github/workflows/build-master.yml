@@ -1,0 +1,35 @@
+name: Build Trakt against master version of Rocq
+
+on:
+  push:
+    branches: [ coq-master ]
+  pull_request:
+    branches: [ coq-master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: nixbuild/nix-quick-install-action@v34
+
+      - name: Build against master
+        run: |
+          nix build --impure --expr '
+            let
+              flake = builtins.getFlake (toString ./.);
+              pkgs = import flake.inputs.nixpkgs {
+                system = "x86_64-linux";
+                overlays = [ flake.overlays.default ];
+              };
+            in
+            flake.lib.mkTrakt pkgs {
+              rocq = "master";
+              stdlib = "master";
+              rocq-elpi = "master";
+            }' --print-build-logs
