@@ -19,6 +19,54 @@
       ];
 
       flake = {
+        lib = nixpkgs.lib.extend (
+          self: _: {
+            fetchRocqDeps =
+              let
+                filt = drv: self.hasPrefix "rocq-" drv.meta.name;
+                mu = drv: [ drv ] ++ self.concatMap mu (self.filter filt drv.propagatedBuildInputs);
+              in
+              drvs: self.lists.unique (self.concatMap mu drvs);
+
+            mkTrakt =
+              let
+                isVersion = str: builtins.match "[0-9]+(\\.[0-9]+)*" str != null;
+
+                mkFmt = self.replaceStrings [ "." ] [ "_" ];
+
+                mkRocqPackages =
+                  pkgs: version:
+                  if isVersion version then
+                    pkgs."rocqPackages_${mkFmt version}"
+                  else
+                    pkgs.rocqPackages.overrideScope (
+                      _: prev: {
+                        rocq-core = prev.rocq-core.override { inherit version; };
+                      }
+                    );
+
+                mkStdlib = rocqPackages: version: rocqPackages.stdlib.override { inherit version; };
+                mkRocqElpi = rocqPackages: version: rocqPackages.rocq-elpi.override { inherit version; };
+              in
+              pkgs:
+              {
+                rocq,
+                stdlib,
+                rocq-elpi,
+              }:
+              let
+                rocqPackages = mkRocqPackages pkgs rocq;
+              in
+              {
+                name = "trakt-${mkFmt rocq}-${mkFmt stdlib}-${mkFmt rocq-elpi}";
+                value = rocqPackages.trakt.override {
+                  stdlib = mkStdlib rocqPackages stdlib;
+                  rocq-elpi = mkRocqElpi rocqPackages rocq-elpi;
+                };
+              };
+          }
+        );
+
         overlays.default = (
           _: pkgs:
           let
@@ -38,6 +86,10 @@
 
                 opam-name = "rocq-trakt";
                 useDune = true;
+
+                nativeBuildInputs = [
+                  pkgs.git
+                ];
 
                 propagatedBuildInputs = [
                   stdlib
@@ -70,16 +122,22 @@
       };
 
       perSystem =
-        { pkgs, system, ... }:
+        {
+          pkgs,
+          system,
+          ...
+        }:
         rec {
           _module.args.pkgs = import nixpkgs {
             inherit system;
             overlays = [ self.overlays.default ];
           };
 
-          packages.default = pkgs.rocqPackages.trakt;
+          packages = {
+            default = pkgs.rocqPackages.trakt;
 
-          checks = {
+            trakt = pkgs.rocqPackages.trakt;
+
             example =
               let
                 # NOTE: Use `mathcomp-zify` when available in Nix's `RocqPackages`
@@ -137,20 +195,45 @@
                   zify
                 ];
               };
-
-            test = pkgs.rocqPackages.mkRocqDerivation {
-              pname = "trakt-test";
-              opam-name = "rocq-trakt-test";
-
-              src = ./test;
-              version = "nightly";
-              useDune = true;
-
-              propagatedBuildInputs = [
-                pkgs.rocqPackages.trakt
-              ];
-            };
           };
+
+          checks =
+            let
+              # Waiting the version 3.23 of Dune for Rocq 9.0 builds
+              # See: https://github.com/ocaml/dune/pull/14093
+              combinaison = [
+                {
+                  rocq = "9.1";
+                  stdlib = "9.0";
+                  rocq-elpi = "3.3.0";
+                }
+                {
+                  rocq = "9.1";
+                  stdlib = "9.1";
+                  rocq-elpi = "3.3.0";
+                }
+                {
+                  rocq = "9.2";
+                  stdlib = "9.1";
+                  rocq-elpi = "3.3.0";
+                }
+              ];
+            in
+            self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaison)
+            // {
+              test = pkgs.rocqPackages.mkRocqDerivation {
+                pname = "trakt-test";
+                opam-name = "rocq-trakt-test";
+
+                src = ./test;
+                version = "nightly";
+                useDune = true;
+
+                propagatedBuildInputs = [
+                  pkgs.rocqPackages.trakt
+                ];
+              };
+            };
 
           formatter = pkgs.nixfmt-tree;
         };
