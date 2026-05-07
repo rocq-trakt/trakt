@@ -75,7 +75,7 @@
                 pname = "trakt";
 
                 src = ./.;
-                version = "nightly";
+                version = "dev";
 
                 opam-name = "rocq-trakt";
                 useDune = true;
@@ -180,7 +180,7 @@
                 opam-name = "rocq-trakt-example";
 
                 src = ./example;
-                version = "nightly";
+                version = "dev";
                 useDune = true;
 
                 propagatedBuildInputs = [
@@ -252,7 +252,7 @@
                 opam-name = "rocq-trakt-test";
 
                 src = ./test;
-                version = "nightly";
+                version = "dev";
                 useDune = true;
 
                 propagatedBuildInputs = [
