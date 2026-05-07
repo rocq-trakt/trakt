@@ -13,7 +13,9 @@
 
 (authors "Enzo Crance <enzo.crance@inria.fr>")
 
-(maintainers "Chantal Keller <ckeller@lmf.cnrs.fr>")
+(maintainers
+ "Chantal Keller <ckeller@lmf.cnrs.fr>"
+ "Vincent Lafeychine <vincent.lafeychine@proton.me>")
 
 (package
  (name rocq-trakt)
@@ -30,8 +32,8 @@
    "logpath:Trakt"))
  (depends
   (elpi
-   (>= 2.0))
+   (>= 2.0.7))
   (rocq-elpi
-   (>= 2.3.0))
+   (>= 2.5.2))
   (rocq-core
    (>= 9.0.0))))
