@@ -9,7 +9,7 @@
 (source
  (github rocq-trakt/trakt))
 
-(license LGPL-3.0)
+(license LGPL-3.0-or-later)
 
 (authors "Enzo Crance <enzo.crance@inria.fr>")
 

@@ -92,7 +92,7 @@
                 meta = {
                   description = "A generic goal preprocessing tool for proof automation tactics in Rocq";
                   homepage = "https://github.com/rocq-trakt/trakt";
-                  license = pkgs.lib.licenses.lgpl3;
+                  license = pkgs.lib.licenses.lgpl3Plus;
                 };
               };
 
