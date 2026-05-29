@@ -40,18 +40,22 @@ Elpi Accumulate File generalise_free_variables.
 Elpi Accumulate File bool_to_prop.
 Elpi Accumulate File tactic.
 Elpi Accumulate lp:{{
+  pred to-prop i:(list prop).
+  to-prop [].
+  to-prop [P|PS] :- P, to-prop PS.
+
   solve InitialGoal NewGoals :-
     InitialGoal = goal Context _ InitialGoalTy _ [trm ETarget, trm LTarget, trm RuntimeRelData],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
-    (RuntimeRelCtx => preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof),
+    (to-prop RuntimeRelCtx => preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve InitialGoal NewGoals :-
     InitialGoal = goal Context _ InitialGoalTy _ [trm ETarget, trm LTarget],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
-    ([] => preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof),
+    preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof,
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve InitialGoal NewGoals :-
@@ -59,13 +63,13 @@ Elpi Accumulate lp:{{
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
-    (RuntimeRelCtx => preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof),
+    (to-prop RuntimeRelCtx => preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve InitialGoal NewGoals :-
     InitialGoal = goal Context _ InitialGoalTy _ [trm LTarget],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
-    ([] => preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof),
+    preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof,
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals.
 
   solve _ _ :-
@@ -99,6 +103,10 @@ Elpi Accumulate File generalise_free_variables.
 Elpi Accumulate File bool_to_prop.
 Elpi Accumulate File tactic.
 Elpi Accumulate lp:{{
+  pred to-prop i:(list prop).
+  to-prop [].
+  to-prop [P|PS] :- P, to-prop PS.
+
   solve Goal NewGoals :-
     Goal = goal _ _ GoalTy _ [trm ETarget, trm LTarget, trm H, str S, trm RuntimeRelData],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}),
@@ -107,7 +115,7 @@ Elpi Accumulate lp:{{
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
     coq.typecheck H T ok,
-    (RuntimeRelCtx => preprocess-extra T [] (some ETarget) LTarget contravariant false T' P),
+    (to-prop RuntimeRelCtx => preprocess-extra T [] (some ETarget) LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
 
   solve Goal NewGoals :-
@@ -118,7 +126,7 @@ Elpi Accumulate lp:{{
     coq.typecheck H T ok,
     ([] => preprocess-extra T [] (some ETarget) LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
-  
+
   solve Goal NewGoals :-
     Goal = goal _ _ GoalTy _ [trm LTarget, trm H, str S, trm RuntimeRelData],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}),
@@ -127,16 +135,16 @@ Elpi Accumulate lp:{{
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
     coq.typecheck H T ok,
-    (RuntimeRelCtx => preprocess-extra T [] none LTarget contravariant false T' P),
+    (to-prop RuntimeRelCtx => preprocess-extra T [] none LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
-    
+
   solve Goal NewGoals :-
     Goal = goal _ _ GoalTy _ [trm LTarget, trm H, str S],
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}),
     (H = global _ ; def H _ _ _ ; decl H _ _), !,
     coq.string->name S Name,
     coq.typecheck H T ok,
-    ([] => preprocess-extra T [] none LTarget contravariant false T' P),
+    preprocess-extra T [] none LTarget contravariant false T' P,
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
   
   solve _ _ :-
