@@ -1,7 +1,6 @@
 {
   inputs = {
-    # NOTE: Switch to nixos-26.05 when it will be published
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "nixpkgs/nixos-26.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
@@ -19,153 +18,8 @@
       ];
 
       flake = {
-        lib = nixpkgs.lib.extend (
-          self: _: {
-            mkTrakt =
-              let
-                isVersion = str: builtins.match "[0-9]+(\\.[0-9]+)*" str != null;
-
-                mkFmt = self.replaceStrings [ "." ] [ "_" ];
-
-                mkRocqPackages =
-                  pkgs: version:
-                  if isVersion version then
-                    pkgs."rocqPackages_${mkFmt version}"
-                  else
-                    pkgs.rocqPackages.overrideScope (
-                      _: prev: {
-                        rocq-core = prev.rocq-core.override { inherit version; };
-                      }
-                    );
-
-                mkStdlib = rocqPackages: version: rocqPackages.stdlib.override { inherit version; };
-                mkRocqElpi = rocqPackages: version: rocqPackages.rocq-elpi.override { inherit version; };
-              in
-              pkgs:
-              {
-                rocq,
-                stdlib,
-                rocq-elpi,
-              }:
-              let
-                rocqPackages = mkRocqPackages pkgs rocq;
-              in
-              {
-                name = "trakt-${mkFmt rocq}-${mkFmt stdlib}-${mkFmt rocq-elpi}";
-                value = rocqPackages.trakt.override {
-                  stdlib = mkStdlib rocqPackages stdlib;
-                  rocq-elpi = mkRocqElpi rocqPackages rocq-elpi;
-                };
-              };
-          }
-        );
-
-        overlays.default = (
-          _: pkgs:
-          let
-            trakt =
-              {
-                mkRocqDerivation,
-                rocqPackages,
-                stdlib,
-                rocq-elpi,
-                ...
-              }:
-              mkRocqDerivation rec {
-                pname = "trakt";
-
-                src = ./.;
-                version = "dev";
-
-                opam-name = "rocq-trakt";
-                useDune = true;
-
-                nativeBuildInputs = [
-                  pkgs.git
-                ];
-
-                propagatedBuildInputs = [
-                  stdlib
-                  rocq-elpi
-                ];
-
-                doCheck = true;
-
-                checkInputs =
-                  let
-                    # NOTE: Use `mathcomp-zify` when available in Nix's `RocqPackages`
-                    mkMathcompDrv =
-                      name: propagatedBuildInputs:
-                      pkgs.rocqPackages.mkRocqDerivation rec {
-                        inherit propagatedBuildInputs;
-
-                        owner = "math-comp";
-                        repo = "math-comp";
-
-                        pname = "mathcomp-${name}";
-                        preBuild = "cd ${name}";
-
-                        version = "mathcomp-2.5.0";
-                        release.${version}.sha256 = "sha256-M/6IP4WhTQ4j2Bc8nXBXjSjWO08QzNIYI+a2owfOh+8=";
-                      };
-
-                    boot = mkMathcompDrv "boot" [ pkgs.rocqPackages.hierarchy-builder ];
-                    order = mkMathcompDrv "order" [ boot ];
-                    fingroup = mkMathcompDrv "fingroup" [ boot ];
-                    algebra = mkMathcompDrv "algebra" [
-                      order
-                      fingroup
-                    ];
-
-                    zify = pkgs.rocqPackages.mkRocqDerivation rec {
-                      owner = "math-comp";
-                      repo = "mczify";
-
-                      pname = "zify";
-                      propagatedBuildInputs = [
-                        algebra
-                        pkgs.rocqPackages.stdlib
-                      ];
-
-                      preBuild = ''
-                        sed -i -e 's/coq_makefile/rocq makefile/g' Makefile
-                      '';
-
-                      version = "1.6.0+2.3+8.18";
-                      release.${version}.sha256 = "sha256-rI5ZWtgO0a2sxCVChTdASxWxhgYEbM4OhC0dnSMRzZ8=";
-                    };
-                  in
-                  [ zify ];
-
-                checkPhase = ''
-                  runHook preCheck
-                  dune runtest -p ${opam-name} ''${enableParallelBuilding:+-j $NIX_BUILD_CORES}
-                  runHook postCheck
-                '';
-
-                meta = {
-                  description = "A generic goal preprocessing tool for proof automation tactics in Rocq";
-                  homepage = "https://github.com/rocq-trakt/trakt";
-                  license = pkgs.lib.licenses.lgpl3Plus;
-                };
-              };
-
-            mkRocqPackages =
-              base:
-              base.overrideScope (
-                self: _: {
-                  trakt = self.callPackage trakt { };
-                }
-              );
-          in
-          {
-            rocqPackages = mkRocqPackages pkgs.rocqPackages;
-
-            rocqPackages_9_0 = mkRocqPackages pkgs.rocqPackages_9_0;
-            rocqPackages_9_1 = mkRocqPackages pkgs.rocqPackages_9_1;
-            rocqPackages_9_2 = mkRocqPackages pkgs.rocqPackages_9_2;
-          }
-        );
+        lib = nixpkgs.lib.extend (import ./nix/lib.nix);
+        overlays.default = import ./nix/overlay;
       };
 
       perSystem =
@@ -237,11 +91,6 @@
                   rocq = "9.2";
                   stdlib = "9.1";
                   rocq-elpi = "3.3.0";
-                }
-                {
-                  rocq = "9.2";
-                  stdlib = "9.1";
-                  rocq-elpi = "v3.4.0";
                 }
               ];
             in
