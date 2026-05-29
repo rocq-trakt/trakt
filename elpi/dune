@@ -1,6 +1,6 @@
 (rocq.theory
- (package rocq-trakt)
  (name Trakt.Elpi)
+ (package rocq-trakt)
  (plugins rocq-elpi.elpi))
 
 ; The following stanza is required for Dune to handle generated files

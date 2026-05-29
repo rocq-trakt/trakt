@@ -71,7 +71,7 @@
                 rocq-elpi,
                 ...
               }:
-              mkRocqDerivation {
+              mkRocqDerivation rec {
                 pname = "trakt";
 
                 src = ./.;
@@ -88,6 +88,60 @@
                   stdlib
                   rocq-elpi
                 ];
+
+                doCheck = true;
+
+                checkInputs =
+                  let
+                    # NOTE: Use `mathcomp-zify` when available in Nix's `RocqPackages`
+                    mkMathcompDrv =
+                      name: propagatedBuildInputs:
+                      pkgs.rocqPackages.mkRocqDerivation rec {
+                        inherit propagatedBuildInputs;
+
+                        owner = "math-comp";
+                        repo = "math-comp";
+
+                        pname = "mathcomp-${name}";
+                        preBuild = "cd ${name}";
+
+                        version = "mathcomp-2.5.0";
+                        release.${version}.sha256 = "sha256-M/6IP4WhTQ4j2Bc8nXBXjSjWO08QzNIYI+a2owfOh+8=";
+                      };
+
+                    boot = mkMathcompDrv "boot" [ pkgs.rocqPackages.hierarchy-builder ];
+                    order = mkMathcompDrv "order" [ boot ];
+                    fingroup = mkMathcompDrv "fingroup" [ boot ];
+                    algebra = mkMathcompDrv "algebra" [
+                      order
+                      fingroup
+                    ];
+
+                    zify = pkgs.rocqPackages.mkRocqDerivation rec {
+                      owner = "math-comp";
+                      repo = "mczify";
+
+                      pname = "zify";
+                      propagatedBuildInputs = [
+                        algebra
+                        pkgs.rocqPackages.stdlib
+                      ];
+
+                      preBuild = ''
+                        sed -i -e 's/coq_makefile/rocq makefile/g' Makefile
+                      '';
+
+                      version = "1.6.0+2.3+8.18";
+                      release.${version}.sha256 = "sha256-rI5ZWtgO0a2sxCVChTdASxWxhgYEbM4OhC0dnSMRzZ8=";
+                    };
+                  in
+                  [ zify ];
+
+                checkPhase = ''
+                  runHook preCheck
+                  dune runtest -p ${opam-name} ''${enableParallelBuilding:+-j $NIX_BUILD_CORES}
+                  runHook postCheck
+                '';
 
                 meta = {
                   description = "A generic goal preprocessing tool for proof automation tactics in Rocq";
@@ -128,66 +182,7 @@
 
           packages = {
             default = pkgs.rocqPackages.trakt;
-
             trakt = pkgs.rocqPackages.trakt;
-
-            example =
-              let
-                # NOTE: Use `mathcomp-zify` when available in Nix's `RocqPackages`
-                mkMathcompDrv =
-                  name: propagatedBuildInputs:
-                  pkgs.rocqPackages.mkRocqDerivation rec {
-                    inherit propagatedBuildInputs;
-
-                    owner = "math-comp";
-                    repo = "math-comp";
-
-                    pname = "mathcomp-${name}";
-                    preBuild = "cd ${name}";
-
-                    version = "mathcomp-2.5.0";
-                    release.${version}.sha256 = "sha256-M/6IP4WhTQ4j2Bc8nXBXjSjWO08QzNIYI+a2owfOh+8=";
-                  };
-
-                boot = mkMathcompDrv "boot" [ pkgs.rocqPackages.hierarchy-builder ];
-                order = mkMathcompDrv "order" [ boot ];
-                fingroup = mkMathcompDrv "fingroup" [ boot ];
-                algebra = mkMathcompDrv "algebra" [
-                  order
-                  fingroup
-                ];
-
-                zify = pkgs.rocqPackages.mkRocqDerivation rec {
-                  owner = "math-comp";
-                  repo = "mczify";
-
-                  pname = "zify";
-                  propagatedBuildInputs = [
-                    algebra
-                    pkgs.rocqPackages.stdlib
-                  ];
-
-                  preBuild = ''
-                    sed -i -e 's/coq_makefile/rocq makefile/g' Makefile
-                  '';
-
-                  version = "1.6.0+2.3+8.18";
-                  release.${version}.sha256 = "sha256-rI5ZWtgO0a2sxCVChTdASxWxhgYEbM4OhC0dnSMRzZ8=";
-                };
-              in
-              pkgs.rocqPackages.mkRocqDerivation {
-                pname = "trakt-example";
-                opam-name = "rocq-trakt-example";
-
-                src = ./example;
-                version = "dev";
-                useDune = true;
-
-                propagatedBuildInputs = [
-                  pkgs.rocqPackages.trakt
-                  zify
-                ];
-              };
           };
 
           checks =
@@ -243,23 +238,14 @@
                   stdlib = "9.1";
                   rocq-elpi = "3.3.0";
                 }
+                {
+                  rocq = "9.2";
+                  stdlib = "9.1";
+                  rocq-elpi = "v3.4.0";
+                }
               ];
             in
-            self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaison)
-            // {
-              test = pkgs.rocqPackages.mkRocqDerivation {
-                pname = "trakt-test";
-                opam-name = "rocq-trakt-test";
-
-                src = ./test;
-                version = "dev";
-                useDune = true;
-
-                propagatedBuildInputs = [
-                  pkgs.rocqPackages.trakt
-                ];
-              };
-            };
+            self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaison);
 
           formatter = pkgs.nixfmt-tree;
         };
