@@ -4,9 +4,8 @@
   mkRocqDerivation,
 
   # Dependencies
-  stdlib,
   rocq-elpi,
-  zify,
+  stdlib,
 }:
 
 mkRocqDerivation rec {
@@ -18,19 +17,12 @@ mkRocqDerivation rec {
   opam-name = "rocq-trakt";
   useDune = true;
 
-  # TODO: [VL]
-  # nativeBuildInputs = [
-  #   pkgs.git
-  # ];
-
   propagatedBuildInputs = [
     stdlib
     rocq-elpi
   ];
 
   doCheck = true;
-
-  checkInputs = [ zify ];
   checkPhase = ''
     runHook preCheck
     dune runtest -p ${opam-name} ''${enableParallelBuilding:+-j $NIX_BUILD_CORES}

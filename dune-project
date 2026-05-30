@@ -31,8 +31,6 @@
    "date:2022-05-16"
    "logpath:Trakt"))
  (depends
-  (elpi
-   (>= 2.0.7))
   (rocq-elpi
    (>= 2.5.2))
   (rocq-core

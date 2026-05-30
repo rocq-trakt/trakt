@@ -17,13 +17,17 @@ final: _: {
           );
 
       mkStdlib = rocqPackages: version: rocqPackages.stdlib.override { inherit version; };
-      mkRocqElpi = rocqPackages: version: rocqPackages.rocq-elpi.override { inherit version; };
+
+      mkRocqElpi =
+        rocqPackages: version: elpi-version:
+        rocqPackages.rocq-elpi.override { inherit elpi-version version; };
     in
     pkgs:
     {
       rocq,
-      stdlib,
-      rocq-elpi,
+      stdlib ? null,
+      elpi ? null,
+      rocq-elpi ? null,
     }:
     let
       rocqPackages = mkRocqPackages pkgs rocq;
@@ -32,7 +36,7 @@ final: _: {
       name = "trakt-${mkFmt rocq}-${mkFmt stdlib}-${mkFmt rocq-elpi}";
       value = rocqPackages.trakt.override {
         stdlib = mkStdlib rocqPackages stdlib;
-        rocq-elpi = mkRocqElpi rocqPackages rocq-elpi;
+        rocq-elpi = mkRocqElpi rocqPackages rocq-elpi elpi;
       };
     };
 }

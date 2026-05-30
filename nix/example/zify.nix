@@ -13,6 +13,7 @@ mkRocqDerivation rec {
   repo = "mczify";
 
   pname = "zify";
+
   propagatedBuildInputs = [
     mathcomp
     stdlib

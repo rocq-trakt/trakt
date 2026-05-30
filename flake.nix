@@ -19,7 +19,7 @@
 
       flake = {
         lib = nixpkgs.lib.extend (import ./nix/lib.nix);
-        overlays.default = import ./nix/overlay;
+        overlays.default = import ./nix/trakt;
       };
 
       perSystem =
@@ -36,63 +36,110 @@
 
           packages = {
             default = pkgs.rocqPackages.trakt;
-            trakt = pkgs.rocqPackages.trakt;
+            trakt = pkgs.rocqPackages_9_0.trakt;
           };
 
           checks =
             let
-              # NOTE: Waiting the version 3.23 of Dune for Rocq 9.0 builds
-              # See: https://github.com/ocaml/dune/pull/14093
-              duneOverlay = final: prev: {
-                rocqPackages_9_0 = prev.rocqPackages_9_0.overrideScope (
-                  _: _: {
-                    dune = prev.ocamlPackages.dune_3.overrideAttrs rec {
-                      version = "3.23.0-alpha2";
+              combinaison =
+                let
+                  rocq_9_0 = [
+                    {
+                      rocq = "9.0";
+                      stdlib = "9.0";
+                    }
+                    {
+                      rocq = "9.0";
+                      stdlib = "9.1";
+                    }
+                  ];
 
-                      src = pkgs.fetchurl {
-                        url = "https://github.com/ocaml/dune/releases/download/3.23.0_alpha2/dune-3.23.0.alpha2.tbz";
-                        hash = "sha256-gYLRz/nYqn+JAs1QOTRyq9lPSTHbzHNznLEqBGoYTZM=";
-                      };
-                    };
+                  rocq_9_1 = rocq_9_0 ++ [
+                    {
+                      rocq = "9.1";
+                      stdlib = "9.0";
+                    }
+                    {
+                      rocq = "9.1";
+                      stdlib = "9.1";
+                    }
+                  ];
+
+                  rocq_9_2 = rocq_9_1 ++ [
+                    {
+                      rocq = "9.2";
+                      stdlib = "9.1";
+                    }
+                  ];
+                in
+                (map (
+                  x:
+                  x
+                  // {
+                    rocq-elpi = "2.5.2";
+                    elpi = "v2.0.7";
                   }
-                );
-              };
+                ) rocq_9_0)
+                ++
 
-              pkgs = import nixpkgs {
-                inherit system;
-                overlays = [
-                  duneOverlay
-                  self.overlays.default
-                ];
-              };
+                  (map (
+                    x:
+                    x
+                    // {
+                      rocq-elpi = "2.6.0";
+                      elpi = "v2.0.7";
+                    }
+                  ) rocq_9_1)
+                ++
 
-              combinaison = [
-                {
-                  rocq = "9.0";
-                  stdlib = "9.0";
-                  rocq-elpi = "3.3.0";
-                }
-                {
-                  rocq = "9.0";
-                  stdlib = "9.1";
-                  rocq-elpi = "3.3.0";
-                }
-                {
-                  rocq = "9.1";
-                  stdlib = "9.0";
-                  rocq-elpi = "3.3.0";
-                }
-                {
-                  rocq = "9.1";
-                  stdlib = "9.1";
-                  rocq-elpi = "3.3.0";
-                }
-                {
-                  rocq = "9.2";
-                  stdlib = "9.1";
-                  rocq-elpi = "3.3.0";
-                }
-              ];
+                  (map (
+                    x:
+                    x
+                    // {
+                      rocq-elpi = "3.0.0";
+                      elpi = "v3.0.1";
+                    }
+                  ) rocq_9_1)
+                ++
+
+                  (map (
+                    x:
+                    x
+                    // {
+                      rocq-elpi = "3.1.0";
+                      elpi = "v3.2.0";
+                    }
+                  ) rocq_9_1)
+                ++
+
+                  (map (
+                    x:
+                    x
+                    // {
+                      rocq-elpi = "3.2.0";
+                      elpi = "v3.5.0";
+                    }
+                  ) rocq_9_1)
+                ++
+
+                  (map (
+                    x:
+                    x
+                    // {
+                      rocq-elpi = "v3.3.1";
+                      elpi = "v3.6.2";
+                    }
+                  ) rocq_9_2)
+                ++
+
+                  (map (
+                    x:
+                    x
+                    // {
+                      rocq-elpi = "v3.4.0";
+                      elpi = "v3.7.1";
+                    }
+                  ) rocq_9_2);
             in
             self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaison);
 

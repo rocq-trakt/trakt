@@ -22,7 +22,6 @@ homepage: "https://github.com/rocq-trakt/trakt"
 bug-reports: "https://github.com/rocq-trakt/trakt/issues"
 depends: [
   "dune" {>= "3.21"}
-  "elpi" {>= "2.0.7"}
   "rocq-elpi" {>= "2.5.2"}
   "rocq-core" {>= "9.0.0"}
   "odoc" {with-doc}
