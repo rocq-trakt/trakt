@@ -2,8 +2,7 @@ final: _: {
   mkTrakt =
     let
       isVersion = str: builtins.match "[0-9]+(\\.[0-9]+)*" str != null;
-
-      mkFmt = final.replaceStrings [ "." ] [ "_" ];
+      mkFmt = str: final.removePrefix "v" (final.replaceStrings [ "." ] [ "_" ] str);
 
       mkRocqPackages =
         pkgs: version:
@@ -25,8 +24,8 @@ final: _: {
     pkgs:
     {
       rocq,
-      stdlib ? null,
-      elpi ? null,
+      stdlib,
+      elpi,
       rocq-elpi ? null,
     }:
     let
@@ -39,4 +38,39 @@ final: _: {
         rocq-elpi = mkRocqElpi rocqPackages rocq-elpi elpi;
       };
     };
+
+  availableVersions =
+    let
+      stdlib_9_1_or_above = [ "9.1" ];
+      stdlib_9_0_or_above = [ "9.0" ] ++ stdlib_9_1_or_above;
+    in
+    rec {
+      rocq_9_0_or_below = final.cartesianProduct {
+        rocq = [ "9.0" ];
+        stdlib = stdlib_9_0_or_above;
+      };
+
+      rocq_9_1_or_below =
+        rocq_9_0_or_below
+        ++ final.cartesianProduct {
+          rocq = [ "9.1" ];
+          stdlib = stdlib_9_0_or_above;
+        };
+
+      rocq_9_2_or_below =
+        rocq_9_1_or_below
+        ++ final.cartesianProduct {
+          rocq = [ "9.2" ];
+          stdlib = stdlib_9_1_or_above;
+        };
+    };
+
+  mkTraktDep =
+    let
+      update = x: y: x // y;
+    in
+    rocq-elpi: elpi: rocqs:
+    map (update {
+      inherit rocq-elpi elpi;
+    }) rocqs;
 }
