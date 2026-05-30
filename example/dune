@@ -1,3 +1,8 @@
+(alias
+ (name runtest)
+ (deps
+  (alias_rec all)))
+
 (rocq.theory
  (name Trakt.Example)
  (generate_project_file)
@@ -8,8 +13,7 @@
   HB
   mathcomp.algebra
   mathcomp.boot
-  mathcomp.finite_group
+  mathcomp.fingroup
   mathcomp.order
   mathcomp.zify
-  micromega_plugin
   Trakt))

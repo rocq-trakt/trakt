@@ -3,6 +3,7 @@ let
     base:
     base.overrideScope (
       final: _: {
+        zify = final.callPackage ./zify.nix { };
         trakt = final.callPackage ./trakt.nix { };
       }
     );

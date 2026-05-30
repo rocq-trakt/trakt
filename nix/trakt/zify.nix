@@ -4,9 +4,19 @@
   mkRocqDerivation,
 
   # Dependencies
+  hierarchy-builder,
   mathcomp,
+  rocq-elpi,
   stdlib,
 }:
+
+let
+  mathcomp' = mathcomp.override {
+    hierarchy-builder = hierarchy-builder.override {
+      inherit rocq-elpi;
+    };
+  };
+in
 
 mkRocqDerivation rec {
   owner = "math-comp";
@@ -15,7 +25,7 @@ mkRocqDerivation rec {
   pname = "zify";
 
   propagatedBuildInputs = [
-    mathcomp
+    mathcomp'
     stdlib
   ];
 

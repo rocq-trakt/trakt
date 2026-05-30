@@ -30,4 +30,4 @@ jobs:
         run: nix build .#trakt --print-build-logs
 
       - name: Build the whole matrix
-        run: nix flake check --print-build-logs
+        run: nix flake check --impure --print-build-logs

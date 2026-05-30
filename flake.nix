@@ -45,13 +45,13 @@
                 with self.lib;
                 with self.lib.availableVersions;
 
-                mkTraktDep "v2.5.2" "v2.0.7" rocq_9_0_or_below
-                ++ mkTraktDep "v2.6.0" "v2.0.7" rocq_9_1_or_below
-                ++ mkTraktDep "v3.0.0" "v3.0.1" rocq_9_1_or_below
+                # mkTraktDep "v2.5.2" "v2.0.7" rocq_9_0_or_below
+                # ++ mkTraktDep "v2.6.0" "v2.0.7" rocq_9_1_or_below
+                mkTraktDep "v3.0.0" "v3.0.1" rocq_9_1_or_below
                 ++ mkTraktDep "v3.1.0" "v3.2.0" rocq_9_1_or_below
                 ++ mkTraktDep "v3.2.0" "v3.5.0" rocq_9_1_or_below
-                ++ mkTraktDep "v3.3.1" "v3.6.2" rocq_9_2_or_below
-                ++ mkTraktDep "v3.4.0" "v3.7.1" rocq_9_2_or_below;
+                ++ mkTraktDep "v3.3.1" "v3.6.2" rocq_9_1_or_below  # 9_2
+                ++ mkTraktDep "v3.4.0" "v3.7.1" rocq_9_1_or_below; # 9_2
             in
             self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaisons);
 

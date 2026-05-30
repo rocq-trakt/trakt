@@ -6,6 +6,7 @@
   # Dependencies
   rocq-elpi,
   stdlib,
+  zify,
 }:
 
 mkRocqDerivation rec {
@@ -18,11 +19,13 @@ mkRocqDerivation rec {
   useDune = true;
 
   propagatedBuildInputs = [
-    stdlib
     rocq-elpi
+    stdlib
   ];
 
   doCheck = true;
+
+  checkInputs = [ zify ];
   checkPhase = ''
     runHook preCheck
     dune runtest -p ${opam-name} ''${enableParallelBuilding:+-j $NIX_BUILD_CORES}

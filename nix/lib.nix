@@ -23,19 +23,25 @@ final: _: {
     in
     pkgs:
     {
-      rocq,
-      stdlib,
-      elpi,
-      rocq-elpi ? null,
+      rocq-version,
+      stdlib-version,
+      elpi-version,
+      rocq-elpi-version ? null,
     }:
     let
-      rocqPackages = mkRocqPackages pkgs rocq;
+      rocqPackages = mkRocqPackages pkgs rocq-version;
+
+      stdlib = mkStdlib rocqPackages stdlib-version;
+      rocq-elpi = mkRocqElpi rocqPackages rocq-elpi-version elpi-version;
     in
     {
-      name = "trakt-${mkFmt rocq}-${mkFmt stdlib}-${mkFmt rocq-elpi}";
+      name = "trakt-${mkFmt rocq-version}-${mkFmt stdlib-version}-${mkFmt rocq-elpi-version}";
       value = rocqPackages.trakt.override {
-        stdlib = mkStdlib rocqPackages stdlib;
-        rocq-elpi = mkRocqElpi rocqPackages rocq-elpi elpi;
+        inherit stdlib rocq-elpi;
+
+        zify = rocqPackages.zify.override {
+          inherit rocq-elpi;
+        };
       };
     };
 
@@ -46,22 +52,22 @@ final: _: {
     in
     rec {
       rocq_9_0_or_below = final.cartesianProduct {
-        rocq = [ "9.0" ];
-        stdlib = stdlib_9_0_or_above;
+        rocq-version = [ "9.0" ];
+        stdlib-version = stdlib_9_0_or_above;
       };
 
       rocq_9_1_or_below =
         rocq_9_0_or_below
         ++ final.cartesianProduct {
-          rocq = [ "9.1" ];
-          stdlib = stdlib_9_0_or_above;
+          rocq-version = [ "9.1" ];
+          stdlib-version = stdlib_9_0_or_above;
         };
 
       rocq_9_2_or_below =
         rocq_9_1_or_below
         ++ final.cartesianProduct {
-          rocq = [ "9.2" ];
-          stdlib = stdlib_9_1_or_above;
+          rocq-version = [ "9.2" ];
+          stdlib-version = stdlib_9_1_or_above;
         };
     };
 
@@ -69,8 +75,8 @@ final: _: {
     let
       update = x: y: x // y;
     in
-    rocq-elpi: elpi: rocqs:
+    rocq-elpi-version: elpi-version: rocqs:
     map (update {
-      inherit rocq-elpi elpi;
+      inherit rocq-elpi-version elpi-version;
     }) rocqs;
 }
