@@ -74,6 +74,7 @@ Qed.
 
 
 Elpi Db logic.db lp:{{  }}.
+
 From Trakt.Elpi Extra Dependency "types.elpi" as types.
 Elpi Accumulate logic.db File types.
 
