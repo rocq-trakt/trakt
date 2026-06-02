@@ -32,6 +32,6 @@
    "logpath:Trakt"))
  (depends
   (rocq-elpi
-   (>= 2.5.2))
+   (>= 3.2.0))
   (rocq-core
    (>= 9.0.0))))

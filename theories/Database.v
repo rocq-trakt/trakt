@@ -73,9 +73,7 @@ Proof.
 Qed.
 
 
-Elpi Db logic.db lp:{{
-  func copy term -> term.
-}}.
+Elpi Db logic.db lp:{{ }}.
 
 From Trakt.Elpi Extra Dependency "types.elpi" as types.
 Elpi Accumulate logic.db File types.
@@ -149,6 +147,4 @@ Elpi Db relations.db lp:{{
   o:term.        % proof that embedding R is equivalent to R'
 
  }}.
-Elpi Db conversion.db lp:{{
-  pred conversion-allowed o:term.
-}}.
+Elpi Db conversion.db lp:{{ }}.

@@ -51,17 +51,13 @@ final: _: {
       stdlib_9_0_or_above = [ "9.0" ] ++ stdlib_9_1_or_above;
     in
     rec {
-      rocq_9_0_or_below = final.cartesianProduct {
-        rocq-version = [ "9.0" ];
+      rocq_9_1_or_below = final.cartesianProduct {
+        rocq-version = [
+          "9.0"
+          "9.1"
+        ];
         stdlib-version = stdlib_9_0_or_above;
       };
-
-      rocq_9_1_or_below =
-        rocq_9_0_or_below
-        ++ final.cartesianProduct {
-          rocq-version = [ "9.1" ];
-          stdlib-version = stdlib_9_0_or_above;
-        };
 
       rocq_9_2_or_below =
         rocq_9_1_or_below
