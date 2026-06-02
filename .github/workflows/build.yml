@@ -22,8 +22,8 @@ jobs:
 
       - uses: nix-community/cache-nix-action@v6
         with:
-          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/flake.lock') }}
-          gc-max-store-size: 1G
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/flake.lock', '**/*.nix') }}
+          gc-max-store-size: 10G
           purge: true
 
       - name: Build
