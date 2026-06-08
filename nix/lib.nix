@@ -12,6 +12,7 @@ final: _: {
           pkgs.rocqPackages.overrideScope (
             _: prev: {
               rocq-core = prev.rocq-core.override { inherit version; };
+              zify = null;
             }
           );
 
@@ -25,24 +26,18 @@ final: _: {
     {
       rocq-version,
       stdlib-version,
-      elpi-version,
-      rocq-elpi-version ? null,
+      elpi-version ? null,
+      rocq-elpi-version,
     }:
-    let
-      rocqPackages = mkRocqPackages pkgs rocq-version;
-
-      stdlib = mkStdlib rocqPackages stdlib-version;
-      rocq-elpi = mkRocqElpi rocqPackages rocq-elpi-version elpi-version;
-    in
     {
       name = "trakt-${mkFmt rocq-version}-${mkFmt stdlib-version}-${mkFmt rocq-elpi-version}";
-      value = rocqPackages.trakt.override {
-        inherit stdlib rocq-elpi;
-
-        zify = rocqPackages.zify.override {
-          inherit rocq-elpi;
-        };
-      };
+      value =
+        ((mkRocqPackages pkgs rocq-version).overrideScope (
+          _: prev: {
+            stdlib = mkStdlib prev stdlib-version;
+            rocq-elpi = mkRocqElpi prev rocq-elpi-version elpi-version;
+          }
+        )).trakt;
     };
 
   availableVersions =

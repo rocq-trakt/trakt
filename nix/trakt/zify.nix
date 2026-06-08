@@ -13,6 +13,7 @@
 
 let
   pinned = {
+    # NOTE: A Rocq 9.2 compatible version is not available for 26.05
     mathcomp = lib.overrideRocqDerivation rec {
       version = "91d97df9cf3204b4dab84f4e24bc633e84b6473d";
       release.${version}.hash = "sha256-U91YDTfmT7a6tMoN0+FcGjUWg3iHLlWLWRj/DFdKjks=";
@@ -22,7 +23,6 @@ let
 
   mathcomp' = pinned.mathcomp.override {
     hierarchy-builder = hierarchy-builder.override {
-      inherit rocq-elpi;
       version = "1.10.2";
     };
   };
