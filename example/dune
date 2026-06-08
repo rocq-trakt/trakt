@@ -13,7 +13,8 @@
   HB
   mathcomp.algebra
   mathcomp.boot
-  mathcomp.fingroup
+  mathcomp.finite_group
   mathcomp.order
   mathcomp.zify
+  micromega_plugin
   Trakt))
