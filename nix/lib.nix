@@ -1,13 +1,15 @@
 final: _: {
   mkTrakt =
     let
-      isVersion = str: builtins.match "[0-9]+(\\.[0-9]+)*" str != null;
       mkFmt = str: final.removePrefix "v" (final.replaceStrings [ "." ] [ "_" ] str);
 
       mkRocqPackages =
         pkgs: version:
-        if isVersion version then
-          pkgs."rocqPackages_${mkFmt version}"
+        let
+          subset = "rocqPackages_${mkFmt version}";
+        in
+        if builtins.hasAttr subset pkgs then
+          pkgs.${subset}
         else
           pkgs.rocqPackages.overrideScope (
             _: prev: {

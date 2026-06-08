@@ -19,7 +19,11 @@
 
       flake = {
         lib = nixpkgs.lib.extend (import ./nix/lib.nix);
-        overlays.default = import ./nix/trakt;
+
+        overlays = rec {
+          trakt = import ./nix/pkgs;
+          default = trakt;
+        };
       };
 
       perSystem =
@@ -34,9 +38,11 @@
             overlays = [ self.overlays.default ];
           };
 
-          packages = {
-            default = pkgs.rocqPackages.trakt;
-            trakt = pkgs.rocqPackages_9_0.trakt;
+          formatter = pkgs.nixfmt-tree;
+
+          packages = rec {
+            trakt = pkgs.rocqPackages.trakt;
+            default = trakt;
           };
 
           checks =
@@ -50,8 +56,6 @@
                 ++ mkTraktDep "v3.4.0" "v3.7.1" rocq_9_2_or_below;
             in
             self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaisons);
-
-          formatter = pkgs.nixfmt-tree;
         };
     };
 }
