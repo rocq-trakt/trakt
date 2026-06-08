@@ -2,9 +2,11 @@ name: Build Trakt against master version of Rocq
 
 on:
   push:
-    branches: [ coq-master ]
+    branches: [ master ]
   pull_request:
-    branches: [ coq-master ]
+    branches: [ master ]
+  schedule:
+    - cron: '0 0 * * 1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,6 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v5
@@ -25,11 +28,11 @@ jobs:
               flake = builtins.getFlake (toString ./.);
               pkgs = import flake.inputs.nixpkgs {
                 system = "x86_64-linux";
-                overlays = [ flake.overlays.default ];
+                overlays = [ flake.overlays.trakt ];
               };
             in
             flake.lib.mkTrakt pkgs {
-              rocq = "master";
-              stdlib = "master";
-              rocq-elpi = "master";
+              rocq-version = "master";
+              stdlib-version = "master";
+              rocq-elpi-version = "master";
             }' --print-build-logs
