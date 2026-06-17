@@ -45,7 +45,7 @@ Elpi Accumulate lp:{{
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
-    ((id-list-prop RuntimeRelCtx => preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof),
+    ((RuntimeRelCtx => preprocess-extra InitialGoalTy Context (some ETarget) LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals ;
       coq.ltac.fail 0 "trakt: something went wrong. Please open an issue at https://github.com/rocq-trakt/trakt/issues").
 
@@ -61,7 +61,7 @@ Elpi Accumulate lp:{{
     (LTarget = {{ Prop }} ; LTarget = {{ bool }}), !,
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
-    ((id-list-prop RuntimeRelCtx => preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof),
+    ((RuntimeRelCtx => preprocess-extra InitialGoalTy Context none LTarget covariant true EndGoalTy Proof),
       refine {{ lp:Proof (_ : lp:EndGoalTy) }} InitialGoal NewGoals ;
       coq.ltac.fail 0 "trakt: something went wrong. Please open an issue at https://github.com/rocq-trakt/trakt/issues").
 
@@ -111,7 +111,7 @@ Elpi Accumulate lp:{{
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
     coq.typecheck H T ok,
-    (id-list-prop RuntimeRelCtx => preprocess-extra T [] (some ETarget) LTarget contravariant false T' P),
+    (RuntimeRelCtx => preprocess-extra T [] (some ETarget) LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
 
   solve Goal NewGoals :-
@@ -131,7 +131,7 @@ Elpi Accumulate lp:{{
     std.assert! (format-runtime-relation-data RuntimeRelData RuntimeRelCtx)
       "wrong runtime relations format",
     coq.typecheck H T ok,
-    (id-list-prop RuntimeRelCtx => preprocess-extra T [] none LTarget contravariant false T' P),
+    (RuntimeRelCtx => preprocess-extra T [] none LTarget contravariant false T' P),
       refine (let Name T' (app [P, H]) (t\ {{ _ : lp:GoalTy }})) Goal NewGoals.
 
   solve Goal NewGoals :-

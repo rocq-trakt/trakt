@@ -313,11 +313,3 @@ exists-embedding T T' L :-
   embedding U U' _ _ _ _ L _ _,
   coq.unify-eq T U ok,
   coq.unify-eq T' U' ok.
-
-
-% TODO: Added because of the following warning:
-%  > skipping static analysis of flexible rule: RuntimeRelCtx
-%  > [elpi.flex-clause,elpi.typecheck,elpi,default]
-pred id-list-prop i:(list prop).
-id-list-prop [].
-id-list-prop [P|PS] :- P, id-list-prop PS.
