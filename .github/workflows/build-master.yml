@@ -7,13 +7,27 @@ on:
     branches: [ master ]
   schedule:
     - cron: '0 0 * * 1'
+  workflow_dispatch:
+    inputs:
+      rocq-version:
+        default: "master"
+        description: "Rocq version or commit"
+        required: true
+      stdlib-version:
+        default: "master"
+        description: "Stdlib version or commit"
+        required: true
+      rocq-elpi-version:
+        default: "master"
+        description: "Rocq-Elpi version or commit"
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-master:
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -32,7 +46,7 @@ jobs:
               };
             in
             flake.lib.mkTrakt pkgs {
-              rocq-version = "master";
-              stdlib-version = "master";
-              rocq-elpi-version = "master";
+              rocq-version = "${{ inputs.rocq-version || 'master' }}";
+              stdlib-version = "${{ inputs.stdlib-version || 'master' }}";
+              rocq-elpi-version = "${{ inputs.rocq-elpi-version || 'master' }}";
             }' --print-build-logs
