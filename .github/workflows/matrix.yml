@@ -1,4 +1,4 @@
-name: Build Trakt
+name: Build Trakt against supported released versions
 
 on:
   push:
@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  matrix:
     runs-on: ubuntu-latest
     permissions:
       actions: write # Allow to purge the cache
@@ -26,8 +26,8 @@ jobs:
           gc-max-store-size: 10G
           purge: true
 
-      - name: Build
+      - name: Build the current version in nixpkgs
         run: nix build .#trakt --print-build-logs
 
-      - name: Build the whole matrix
+      - name: Build the whole matrix of supported released versions
         run: nix flake check --impure --print-build-logs
