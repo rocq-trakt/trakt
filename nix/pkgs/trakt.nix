@@ -8,17 +8,24 @@
   rocq-elpi,
   stdlib,
   zify ? null,
+
+  # Arguments
+  version ? "dev",
 }:
 
-let
-  opam-name = "rocq-trakt";
-in
-mkRocqDerivation {
-  inherit opam-name;
+mkRocqDerivation rec {
+  inherit version;
+
+  owner = "rocq-trakt";
   pname = "trakt";
 
-  src = ../..;
-  version = "dev";
+  defaultVersion = "dev";
+  release."dev" = {
+    src = ../..;
+    hash = "";
+  };
+
+  opam-name = "rocq-trakt";
   useDune = true;
 
   nativeBuildInputs = [
