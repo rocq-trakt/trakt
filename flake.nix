@@ -32,7 +32,7 @@
           system,
           ...
         }:
-        rec {
+        {
           _module.args.pkgs = import nixpkgs {
             inherit system;
             overlays = [ self.overlays.default ];
@@ -49,7 +49,7 @@
             let
               combinaisons =
                 with self.lib;
-                with self.lib.availableVersions;
+                with self.lib.compatibilityRocqMatrix;
 
                 mkTraktDep "v3.2.0" "v3.5.0" rocq_9_1_or_below
                 ++ mkTraktDep "v3.3.1" "v3.6.2" rocq_9_2_or_below
