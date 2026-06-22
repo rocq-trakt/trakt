@@ -18,7 +18,7 @@
       ];
 
       flake = {
-        lib = nixpkgs.lib.extend (import ./nix/lib.nix);
+        lib = import ./nix/lib.nix { inherit nixpkgs; };
 
         overlays = rec {
           trakt = import ./nix/pkgs;
@@ -28,6 +28,7 @@
 
       perSystem =
         {
+          lib,
           pkgs,
           system,
           ...
@@ -41,7 +42,8 @@
           formatter = pkgs.nixfmt-tree;
 
           packages = rec {
-            trakt = pkgs.rocqPackages.trakt;
+            inherit (pkgs.rocqPackages) trakt;
+
             default = trakt;
           };
 
@@ -55,7 +57,7 @@
                 ++ mkTraktDep "v3.3.1" "v3.6.2" rocq_9_2_or_below
                 ++ mkTraktDep "v3.4.0" "v3.7.1" rocq_9_2_or_below;
             in
-            self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaisons);
+            lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaisons);
         };
     };
 }

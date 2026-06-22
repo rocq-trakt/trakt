@@ -1,10 +1,13 @@
-final: _: {
-  mkFmt = str: final.removePrefix "v" (final.replaceStrings [ "." ] [ "_" ] str);
+{ nixpkgs }:
 
-  mkRocqCoreScope =
+with nixpkgs.lib;
+rec {
+  mkFmt = str: removePrefix "v" (replaceStrings [ "." ] [ "_" ] str);
+
+  mkCoreScope =
     { pkgs, rocq-core, ... }:
     let
-      subset = "rocqPackages_${final.mkFmt rocq-core}";
+      subset = "rocqPackages_${mkFmt rocq-core}";
     in
     if builtins.hasAttr subset pkgs then
       pkgs.${subset}
@@ -16,21 +19,21 @@ final: _: {
         }
       );
 
-  mkRocqStdlibScope =
+  mkStdlibScope =
     { rocq-stdlib, ... }@args:
-    (final.mkRocqCoreScope args).overrideScope (
+    (mkCoreScope args).overrideScope (
       _: prev: {
         stdlib = prev.stdlib.override { version = rocq-stdlib; };
       }
     );
 
-  mkRocqElpiScope =
+  mkElpiScope =
     {
       rocq-elpi,
       elpi ? null,
       ...
     }@args:
-    (final.mkRocqStdlibScope args).overrideScope (
+    (mkStdlibScope args).overrideScope (
       _: prev: {
         rocq-elpi = prev.rocq-elpi.override {
           version = rocq-elpi;
@@ -44,7 +47,7 @@ final: _: {
       rocq-trakt ? "dev",
       ...
     }@args:
-    (final.mkRocqElpiScope args).overrideScope (
+    (mkElpiScope args).overrideScope (
       _: prev: {
         trakt = prev.trakt.override {
           version = rocq-trakt;
@@ -53,8 +56,8 @@ final: _: {
     );
 
   mkTrakt =
-    pkgs: args: with final.mkRocqElpiScope ({ inherit pkgs; } // args); {
-      name = "trakt-${final.mkFmt rocq-core.version}-${final.mkFmt stdlib.version}-${final.mkFmt rocq-elpi.version}";
+    pkgs: args: with mkTraktScope ({ inherit pkgs; } // args); {
+      name = "trakt-${mkFmt args.rocq-core}-${mkFmt args.rocq-stdlib}-${mkFmt args.rocq-elpi}";
       value = trakt;
     };
 
@@ -64,7 +67,7 @@ final: _: {
       stdlib_9_0_or_above = [ "9.0" ] ++ stdlib_9_1_or_above;
     in
     rec {
-      rocq_9_1_or_below = final.cartesianProduct {
+      rocq_9_1_or_below = cartesianProduct {
         rocq-core = [
           "9.0"
           "9.1"
@@ -74,18 +77,16 @@ final: _: {
 
       rocq_9_2_or_below =
         rocq_9_1_or_below
-        ++ final.cartesianProduct {
+        ++ cartesianProduct {
           rocq-core = [ "9.2" ];
           rocq-stdlib = stdlib_9_1_or_above;
         };
     };
 
   mkTraktDep =
+    rocq-elpi: elpi: rocq-matrix:
     let
-      update = x: y: x // y;
+      versions = { inherit rocq-elpi elpi; };
     in
-    rocq-elpi: elpi: rocqs:
-    map (update {
-      inherit rocq-elpi elpi;
-    }) rocqs;
+    map (rocq: rocq // versions) rocq-matrix;
 }
