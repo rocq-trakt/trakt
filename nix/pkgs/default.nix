@@ -1,10 +1,35 @@
 let
   mkRocqPackages =
+    let
+      case = case: out: { inherit case out; };
+    in
     base:
     base.overrideScope (
-      final: _: {
+      final: prev:
+      with final.lib;
+      with final.lib.versions;
+      {
         zify = final.callPackage ./zify.nix { };
         trakt = final.callPackage ./trakt.nix { };
+
+        # NOTE: If possible, upstream these matrices
+        # It might not be accepted as overlapping is useless upstream
+        stdlib = overrideRocqDerivation {
+          defaultVersion = switch final.rocq-core.rocq-version [
+            (case (range "9.0" "9.2") "9.1.0")
+            (case (range "9.0" "9.1") "9.0.0")
+          ] null;
+        } prev.stdlib;
+
+        rocq-elpi = overrideRocqDerivation {
+          pname = "rocq-elpi";
+
+          defaultVersion = switch final.rocq-core.rocq-version [
+            (case (range "9.0" "9.2") "v3.4.0")
+            (case (range "9.0" "9.2") "v3.3.1")
+            (case (range "9.0" "9.1") "v3.2.0")
+          ] null;
+        } prev.rocq-elpi;
       }
     );
 in
