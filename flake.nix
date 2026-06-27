@@ -18,7 +18,7 @@
       ];
 
       flake = {
-        lib = import ./nix/lib.nix { inherit nixpkgs; };
+        lib = nixpkgs.lib.fix (lib: nixpkgs.lib // import ./nix/lib.nix { inherit lib; });
 
         overlays = rec {
           trakt = import ./nix/pkgs;
@@ -28,7 +28,6 @@
 
       perSystem =
         {
-          lib,
           pkgs,
           system,
           ...
@@ -49,15 +48,20 @@
 
           checks =
             let
-              combinaisons =
-                with self.lib;
-                with self.lib.compatibilityRocqMatrix;
-
-                mkTraktDep "v3.2.0" "v3.5.0" rocq_9_1_or_below
-                ++ mkTraktDep "v3.3.1" "v3.6.2" rocq_9_2_or_below
-                ++ mkTraktDep "v3.4.0" "v3.7.1" rocq_9_2_or_below;
+              mkTrakt =
+                { rocq-elpi, ... }@attrs:
+                let
+                  elpi =
+                    if rocq-elpi == "v3.2.0" then
+                      "v3.5.0"
+                    else if rocq-elpi == "v3.3.1" then
+                      "v3.6.2"
+                    else
+                      "v3.7.1";
+                in
+                self.lib.mkTrakt pkgs (attrs // { inherit elpi; });
             in
-            lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaisons);
+            self.lib.listToAttrs (map mkTrakt (self.lib.getMatrix pkgs.rocqPackages "trakt"));
         };
     };
 }
