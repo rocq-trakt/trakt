@@ -21,7 +21,7 @@ mkRocqDerivation rec {
 
   defaultVersion = "dev";
   release."dev" = {
-    src = ../..;
+    src = lib.cleanSource ../..;
     hash = "";
   };
 
