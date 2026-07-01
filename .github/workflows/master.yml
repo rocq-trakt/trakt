@@ -9,11 +9,11 @@ on:
     - cron: '0 0 * * 1'
   workflow_dispatch:
     inputs:
-      rocq-core:
+      rocq:
         default: "master"
         description: "Rocq version or commit"
         required: true
-      rocq-stdlib:
+      stdlib:
         default: "master"
         description: "Stdlib version or commit"
         required: true
@@ -25,7 +25,7 @@ on:
         default: "master"
         description: "Rocq-Elpi version or commit"
         required: true
-      rocq-trakt:
+      trakt:
         default: "master"
         description: "Trakt version or commit"
         required: true
@@ -54,9 +54,9 @@ jobs:
               };
             in
             flake.lib.mkTrakt pkgs {
-              rocq-core = "${{ inputs.rocq-core || 'master' }}";
-              rocq-stdlib = "${{ inputs.rocq-stdlib || 'master' }}";
+              rocq = "${{ inputs.rocq || 'master' }}";
+              stdlib = "${{ inputs.stdlib || 'master' }}";
               elpi = "${{ inputs.elpi || 'master' }}";
               rocq-elpi = "${{ inputs.rocq-elpi || 'master' }}";
-              rocq-trakt = "${{ inputs.rocq-trakt || 'master' }}";
+              trakt = "${{ inputs.trakt || 'master' }}";
             }' --print-build-logs
