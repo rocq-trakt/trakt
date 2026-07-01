@@ -48,10 +48,34 @@
         "type": "github"
       }
     },
+    "rocq-utils": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782946197,
+        "narHash": "sha256-eV5ciRAZhJLgZydxkTkMHhL41SALdEuqi8DigF2W6yE=",
+        "ref": "refs/heads/main",
+        "rev": "ad805af0a5b3269882e4ff92e1dd5e0de68f1a5a",
+        "revCount": 1,
+        "type": "git",
+        "url": "https://codeberg.org/lafeychine/rocq-utils"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/lafeychine/rocq-utils"
+      }
+    },
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "rocq-utils": "rocq-utils"
       }
     }
   },
