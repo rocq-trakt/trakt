@@ -2,6 +2,12 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-26.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
+
+    rocq-utils = {
+      url = "git+https://codeberg.org/lafeychine/rocq-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
 
   outputs =
@@ -9,6 +15,7 @@
       flake-parts,
       self,
       nixpkgs,
+      rocq-utils,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -18,11 +25,15 @@
       ];
 
       flake = {
-        lib = nixpkgs.lib.extend (import ./nix/lib.nix);
+        lib = nixpkgs.lib.fix (lib: rocq-utils.lib // import ./nix/lib.nix { inherit lib; });
 
         overlays = rec {
           trakt = import ./nix/pkgs;
-          default = trakt;
+
+          default = nixpkgs.lib.composeManyExtensions [
+            rocq-utils.overlays.default
+            self.overlays.trakt
+          ];
         };
       };
 
@@ -32,7 +43,7 @@
           system,
           ...
         }:
-        rec {
+        {
           _module.args.pkgs = import nixpkgs {
             inherit system;
             overlays = [ self.overlays.default ];
@@ -41,21 +52,14 @@
           formatter = pkgs.nixfmt-tree;
 
           packages = rec {
-            trakt = pkgs.rocqPackages.trakt;
+            inherit (pkgs.rocqPackages) trakt;
+
             default = trakt;
           };
 
-          checks =
-            let
-              combinaisons =
-                with self.lib;
-                with self.lib.availableVersions;
-
-                mkTraktDep "v3.2.0" "v3.5.0" rocq_9_1_or_below
-                ++ mkTraktDep "v3.3.1" "v3.6.2" rocq_9_2_or_below
-                ++ mkTraktDep "v3.4.0" "v3.7.1" rocq_9_2_or_below;
-            in
-            self.lib.listToAttrs (map (self.lib.mkTrakt pkgs) combinaisons);
+          checks = pkgs.lib.listToAttrs (
+            map (self.lib.mkTrakt pkgs) (self.lib.mkRocqConstraints pkgs.rocqPackages "trakt")
+          );
         };
     };
 }

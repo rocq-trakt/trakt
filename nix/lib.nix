@@ -1,75 +1,46 @@
-final: _: {
+{ lib }:
+
+with lib;
+{
   mkTrakt =
-    let
-      mkFmt = str: final.removePrefix "v" (final.replaceStrings [ "." ] [ "_" ] str);
-
-      mkRocqPackages =
-        pkgs: version:
-        let
-          subset = "rocqPackages_${mkFmt version}";
-        in
-        if builtins.hasAttr subset pkgs then
-          pkgs.${subset}
-        else
-          pkgs.rocqPackages.overrideScope (
-            _: prev: {
-              rocq-core = prev.rocq-core.override { inherit version; };
-              zify = null;
-            }
-          );
-
-      mkStdlib = rocqPackages: version: rocqPackages.stdlib.override { inherit version; };
-
-      mkRocqElpi =
-        rocqPackages: version: elpi-version:
-        rocqPackages.rocq-elpi.override { inherit elpi-version version; };
-    in
     pkgs:
     {
-      rocq-version,
-      stdlib-version,
-      elpi-version ? null,
-      rocq-elpi-version,
-    }:
+      rocq,
+      stdlib,
+      rocq-elpi,
+      elpi ? null,
+      trakt ? "dev",
+    }@attrs:
+    let
+      defaultElpiVersion =
+        with rocqPackages.lib;
+        let
+          case = case: out: { inherit case out; };
+        in
+        version:
+        switch version [
+          (case (versions.isGe "v3.4.0") "v3.7.1")
+          (case (versions.isGe "v3.3.1") "v3.6.2")
+          (case (versions.isGe "v3.2.0") "v3.5.0")
+        ] null;
+
+      rocqPackages = (mkRocqPackages pkgs rocq).overrideScope (
+        final: prev:
+        {
+          stdlib = prev.stdlib.override { version = stdlib; };
+          rocq-elpi = prev.rocq-elpi.override {
+            version = rocq-elpi;
+            elpi-version = defaultElpiVersion rocq-elpi;
+          };
+          trakt = prev.trakt.override { version = trakt; };
+        }
+        // pkgs.lib.optionalAttrs (prev.rocq-core.version == "dev") {
+          zify = null;
+        }
+      );
+    in
     {
-      name = "trakt-${mkFmt rocq-version}-${mkFmt stdlib-version}-${mkFmt rocq-elpi-version}";
-      value =
-        ((mkRocqPackages pkgs rocq-version).overrideScope (
-          _: prev: {
-            stdlib = mkStdlib prev stdlib-version;
-            rocq-elpi = mkRocqElpi prev rocq-elpi-version elpi-version;
-          }
-        )).trakt;
+      name = "trakt-${mkFmt rocq}-${mkFmt stdlib}-${mkFmt rocq-elpi}-${mkFmt trakt}";
+      value = rocqPackages.trakt;
     };
-
-  availableVersions =
-    let
-      stdlib_9_1_or_above = [ "9.1" ];
-      stdlib_9_0_or_above = [ "9.0" ] ++ stdlib_9_1_or_above;
-    in
-    rec {
-      rocq_9_1_or_below = final.cartesianProduct {
-        rocq-version = [
-          "9.0"
-          "9.1"
-        ];
-        stdlib-version = stdlib_9_0_or_above;
-      };
-
-      rocq_9_2_or_below =
-        rocq_9_1_or_below
-        ++ final.cartesianProduct {
-          rocq-version = [ "9.2" ];
-          stdlib-version = stdlib_9_1_or_above;
-        };
-    };
-
-  mkTraktDep =
-    let
-      update = x: y: x // y;
-    in
-    rocq-elpi-version: elpi-version: rocqs:
-    map (update {
-      inherit rocq-elpi-version elpi-version;
-    }) rocqs;
 }
