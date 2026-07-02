@@ -22,7 +22,7 @@ mkRocqDerivation rec {
   defaultVersion = "dev";
   release."dev" = {
     src = lib.cleanSource ../..;
-    hash = "";
+    hash = null;
   };
 
   opam-name = "rocq-trakt";
