@@ -12,26 +12,11 @@ with lib;
       trakt ? "dev",
     }@attrs:
     let
-      defaultElpiVersion =
-        with rocqPackages.lib;
-        let
-          case = case: out: { inherit case out; };
-        in
-        version:
-        switch version [
-          (case (versions.isGe "v3.4.0") "v3.7.1")
-          (case (versions.isGe "v3.3.1") "v3.6.2")
-          (case (versions.isGe "v3.2.0") "v3.5.0")
-        ] null;
-
       rocqPackages = (mkRocqPackages pkgs rocq).overrideScope (
-        final: prev:
+        _: prev:
         {
           stdlib = prev.stdlib.override { version = stdlib; };
-          rocq-elpi = prev.rocq-elpi.override {
-            version = rocq-elpi;
-            elpi-version = defaultElpiVersion rocq-elpi;
-          };
+          rocq-elpi = prev.rocq-elpi.override { version = rocq-elpi; };
           trakt = prev.trakt.override { version = trakt; };
         }
         // pkgs.lib.optionalAttrs (prev.rocq-core.version == "dev") {
