@@ -2,6 +2,16 @@
 
 with lib;
 {
+  mkTraktName =
+    {
+      rocq-core,
+      stdlib,
+      rocq-elpi,
+      trakt,
+      ...
+    }:
+    "${mkFmt rocq-core.version}-${mkFmt stdlib.version}-${mkFmt rocq-elpi.version}-${mkFmt trakt.version}";
+
   mkTraktScope =
     pkgs:
     {
@@ -28,16 +38,12 @@ with lib;
     );
 
   mkTrakt =
-    pkgs:
-    versions@{
-      rocq,
-      stdlib,
-      rocq-elpi,
-      trakt ? "dev",
-      ...
-    }:
+    pkgs: versions:
+    let
+      rocqPackages = mkTraktScope pkgs versions;
+    in
     {
-      name = "trakt-${mkFmt rocq}-${mkFmt stdlib}-${mkFmt rocq-elpi}-${mkFmt trakt}";
-      value = (mkTraktScope pkgs versions).trakt;
+      name = "trakt-${mkTraktName rocqPackages}";
+      value = rocqPackages.trakt;
     };
 }
