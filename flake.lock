@@ -58,11 +58,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783156736,
-        "narHash": "sha256-CoczQ8EwKQBodMk0v0Q2aAyJYR5dRqCI70hUtQq1ptA=",
+        "lastModified": 1783540115,
+        "narHash": "sha256-CRak+zdxYZvQ1cVMI6Z4fZ8+VHUzn9Bku3ONqzA1Wf8=",
         "ref": "refs/heads/main",
-        "rev": "6f5f41669791dee1adf8ce68028759761b7a63cb",
-        "revCount": 1,
+        "rev": "10f33f6ce899d443edebe25fa95799523248f4ba",
+        "revCount": 2,
         "type": "git",
         "url": "https://codeberg.org/lafeychine/rocq-utils"
       },
