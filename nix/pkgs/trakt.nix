@@ -10,23 +10,28 @@
   zify ? null,
 
   # Arguments
-  version ? "dev",
+  version ? null,
 }:
 
-mkRocqDerivation rec {
+let
+  case = case: out: { inherit case out; };
+in mkRocqDerivation rec {
   inherit version;
 
   owner = "rocq-trakt";
   pname = "trakt";
 
-  defaultVersion = "dev";
+  opam-name = "rocq-trakt";
+  useDune = true;
+
+  defaultVersion = lib.switch rocq-elpi.version [
+    (case (lib.versions.isGe "3.2.0") "dev")
+  ] null;
+
   release."dev" = {
     src = lib.cleanSource ../..;
     hash = null;
   };
-
-  opam-name = "rocq-trakt";
-  useDune = true;
 
   nativeBuildInputs = [
     git
@@ -38,7 +43,6 @@ mkRocqDerivation rec {
   ];
 
   doCheck = true;
-
   checkInputs = [ zify ];
   checkPhase =
     lib.optionalString (isNull zify) ''
