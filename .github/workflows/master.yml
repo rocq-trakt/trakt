@@ -40,8 +40,8 @@ jobs:
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v5
-      - uses: nixbuild/nix-quick-install-action@v34
+      - uses: actions/checkout@v7
+      - uses: nixbuild/nix-quick-install-action@v35
 
       - name: Build against specific versions
         run: |
@@ -50,7 +50,7 @@ jobs:
               flake = builtins.getFlake (toString ./.);
               pkgs = import flake.inputs.nixpkgs {
                 system = "x86_64-linux";
-                overlays = [ flake.overlays.trakt ];
+                overlays = [ flake.overlays.default ];
               };
             in
             flake.lib.mkTrakt pkgs {
