@@ -43,7 +43,7 @@ in mkRocqDerivation rec {
   ];
 
   doCheck = true;
-  checkInputs = [ zify ];
+  nativeCheckInputs = [ zify ];
   checkPhase =
     lib.optionalString (isNull zify) ''
       rm -rf example
