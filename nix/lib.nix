@@ -18,7 +18,6 @@ with lib;
       rocq,
       stdlib,
       rocq-elpi,
-      elpi ? null,
       trakt ? "dev",
       ...
     }:
@@ -26,10 +25,7 @@ with lib;
       _: prev:
       {
         stdlib = prev.stdlib.override { version = stdlib; };
-        rocq-elpi = prev.rocq-elpi.override {
-          version = rocq-elpi;
-          elpi-version = elpi;
-        };
+        rocq-elpi = prev.rocq-elpi.override { version = rocq-elpi; };
         trakt = prev.trakt.override { version = trakt; };
       }
       // pkgs.lib.optionalAttrs (prev.rocq-core.version == "dev") {
