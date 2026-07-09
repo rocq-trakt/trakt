@@ -1,5 +1,5 @@
 all:
-	dune build -p rocq-trakt
+	dune build theories/Trakt.vo
 
 install:
 	dune install rocq-trakt
