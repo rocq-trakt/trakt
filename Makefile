@@ -2,6 +2,7 @@ all:
 	dune build theories/Trakt.vo
 
 install:
+	dune build -p rocq-trakt
 	dune install rocq-trakt
 
 test:
