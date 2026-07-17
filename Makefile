@@ -1,19 +1,20 @@
 all:
-	dune build theories/Trakt.vo
+	dune build theories
 
 install:
 	dune build -p rocq-trakt
 	dune install rocq-trakt
 
 test:
-	cd test && dune build
+	dune build test
 
 example:
-	cd example && dune build
+	dune build example
 
 clean:
 	dune clean
-	rm -f rocq-trakt.install {theories,example,test}/_RocqProject
+	find . -name "_RocqProject" -delete
+	rm -f rocq-trakt.install
 
 .PHONY: all install test example clean
 .NOTPARALLEL:
