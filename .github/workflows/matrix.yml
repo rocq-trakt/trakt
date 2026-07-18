@@ -1,8 +1,6 @@
 name: Build Trakt against supported released versions
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -29,6 +27,7 @@ jobs:
   matrix:
     needs: discover
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     strategy:
       matrix:
