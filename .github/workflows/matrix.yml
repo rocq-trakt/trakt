@@ -11,8 +11,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  matrix:
+  discover:
     runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.discover.outputs.packages }}
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nixbuild/nix-quick-install-action@v35
+
+      - name: Get all versions
+        id: discover
+        run: |
+          packages=$(nix eval --json .#checks.x86_64-linux --apply builtins.attrNames)
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+
+  matrix:
+    needs: discover
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.discover.outputs.packages) }}
+
     steps:
       - uses: actions/checkout@v7
       - uses: nixbuild/nix-quick-install-action@v35
@@ -23,8 +44,5 @@ jobs:
           endpoint: ${{ secrets.ATTIC_ENDPOINT }}
           token: ${{ secrets.ATTIC_TOKEN }}
 
-      - name: Build the current version in nixpkgs
-        run: nix build .#trakt --print-build-logs
-
-      - name: Build the whole matrix of supported released versions
-        run: nix flake check --print-build-logs
+      - name: Build specific version
+        run: nix build .#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
