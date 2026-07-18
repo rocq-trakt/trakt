@@ -1,8 +1,6 @@
 name: Build Trakt against specific versions
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
   schedule:
@@ -10,21 +8,13 @@ on:
   workflow_dispatch:
     inputs:
       rocq:
-        default: "master"
         description: "Rocq version or commit"
-        required: true
       stdlib:
-        default: "master"
         description: "Stdlib version or commit"
-        required: true
       rocq-elpi:
-        default: "master"
         description: "Rocq-Elpi version or commit"
-        required: true
       trakt:
-        default: "master"
         description: "Trakt version or commit"
-        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
