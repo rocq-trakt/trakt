@@ -8,20 +8,20 @@ on:
   workflow_dispatch:
     inputs:
       rocq:
-        description: "Rocq version or commit"
+        description: Rocq version or commit
       stdlib:
-        description: "Stdlib version or commit"
+        description: Stdlib version or commit
       rocq-elpi:
-        description: "Rocq-Elpi version or commit"
+        description: Rocq-Elpi version or commit
       trakt:
-        description: "Trakt version or commit"
+        description: Trakt version or commit
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  master:
+  specific:
     runs-on: ubuntu-latest
     continue-on-error: true
 
