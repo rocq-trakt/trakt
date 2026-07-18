@@ -15,7 +15,8 @@
 
 let
   case = case: out: { inherit case out; };
-in mkRocqDerivation rec {
+in
+mkRocqDerivation rec {
   inherit version;
 
   owner = "rocq-trakt";
