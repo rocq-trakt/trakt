@@ -11,6 +11,7 @@ concurrency:
 jobs:
   discover:
     runs-on: ubuntu-latest
+
     outputs:
       packages: ${{ steps.discover.outputs.packages }}
 
@@ -27,7 +28,6 @@ jobs:
   matrix:
     needs: discover
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     strategy:
       matrix:
@@ -45,3 +45,13 @@ jobs:
 
       - name: Build specific version
         run: nix build .#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
+
+  matrix-success:
+    if: ${{ always() }}
+    needs: matrix
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Has the matrix failed?
+        if: ${{ needs.matrix.result != 'success' }}
+        run: exit 1
