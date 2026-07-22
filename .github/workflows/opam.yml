@@ -1,0 +1,26 @@
+name: Build Trakt with Docker-Coq
+
+on:
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  opam:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: coq-community/docker-coq-action@v1
+        with:
+          opam_file: 'rocq-trakt.opam'
+          before_install: |
+            startGroup "Print opam config" \
+              opam config list; opam repo list;
+              opam pin add -y dune 3.21.1;
+              opam list \
+            endGroup
