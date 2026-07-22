@@ -1,0 +1,27 @@
+name: Build Trakt with Docker
+
+on:
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  opam:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: coq-community/docker-coq-action@v1
+        with:
+          opam_file: rocq-trakt.opam
+          custom_image: ghcr.io/rocq-trakt/rocq:latest
+
+          install: |
+            startGroup "Install dependencies"
+              opam pin add -n -y -k path $PACKAGE $WORKDIR
+              opam install --confirm-level=no -j 2 $PACKAGE --deps-only
+            endGroup
