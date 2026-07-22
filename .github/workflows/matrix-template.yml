@@ -1,12 +1,18 @@
-name: Build Trakt against supported released versions
+name: Build repository against supported released versions
 
 on:
-  pull_request:
-    branches: [ master ]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      repository:
+        type: string
+        required: true
+      override-input:
+        type: string
+    secrets:
+      ATTIC_ENDPOINT:
+        required: true
+      ATTIC_TOKEN:
+        required: true
 
 jobs:
   discover:
@@ -22,7 +28,7 @@ jobs:
       - name: Get all versions
         id: discover
         run: |
-          packages=$(nix eval --json .#checks.x86_64-linux --apply builtins.attrNames)
+          packages=$(nix eval --json ${{ inputs.repository }}#checks.x86_64-linux --apply builtins.attrNames)
           echo "packages=$packages" >> "$GITHUB_OUTPUT"
 
   matrix:
@@ -45,14 +51,9 @@ jobs:
           token: ${{ secrets.ATTIC_TOKEN }}
 
       - name: Build specific version
-        run: nix build .#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
+        if: ${{ inputs.override-input == '' }}
+        run: nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
 
-  matrix-success:
-    if: ${{ always() }}
-    needs: matrix
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Has the matrix failed?
-        if: ${{ needs.matrix.result != 'success' }}
-        run: exit 1
+      - name: Build specific version
+        if: ${{ inputs.override-input != '' }}
+        run: nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --override-input ${{ inputs.override-input }} . --print-build-logs
