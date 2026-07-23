@@ -1,0 +1,59 @@
+name: Build repository against supported released versions
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        type: string
+        required: true
+      override-input:
+        type: string
+    secrets:
+      ATTIC_ENDPOINT:
+        required: true
+      ATTIC_TOKEN:
+        required: true
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+
+    outputs:
+      packages: ${{ steps.discover.outputs.packages }}
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nixbuild/nix-quick-install-action@v35
+
+      - name: Get all versions
+        id: discover
+        run: |
+          packages=$(nix eval --json ${{ inputs.repository }}#checks.x86_64-linux --apply builtins.attrNames)
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+
+  matrix:
+    needs: discover
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.discover.outputs.packages) }}
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nixbuild/nix-quick-install-action@v35
+
+      - uses: ryanccn/attic-action@v0
+        with:
+          cache: smtcoq
+          endpoint: ${{ secrets.ATTIC_ENDPOINT }}
+          token: ${{ secrets.ATTIC_TOKEN }}
+
+      - name: Build specific version
+        if: ${{ inputs.override-input == '' }}
+        run: nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
+
+      - name: Build specific version
+        if: ${{ inputs.override-input != '' }}
+        run: nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --override-input ${{ inputs.override-input }} . --print-build-logs
