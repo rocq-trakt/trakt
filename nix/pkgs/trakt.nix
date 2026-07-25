@@ -30,8 +30,20 @@ mkRocqDerivation rec {
   ] null;
 
   release."dev" = {
-    src = lib.cleanSource ../..;
     hash = null;
+    src = lib.cleanSourceWith {
+      src = ../..;
+
+      filter =
+        path: type:
+        let
+          name = baseNameOf path;
+        in
+        type == "directory"
+        || name == "dune"
+        || name == "dune-project"
+        || builtins.match ".*\\.(v|elpi)$" name != null;
+    };
   };
 
   nativeBuildInputs = [
