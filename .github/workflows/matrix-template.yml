@@ -62,5 +62,8 @@ jobs:
       - name: Build specific version
         if: ${{ steps.cache.outputs.status != '200' }}
         run: |
-          ${{ inputs.override-input == '' }} && nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
-          ${{ inputs.override-input != '' }} && nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --override-input ${{ inputs.override-input }} . --print-build-logs
+          if [ -n "${{ inputs.override-input }}" ]; then
+            nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --override-input ${{ inputs.override-input }} . --print-build-logs
+          else
+            nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
+          fi

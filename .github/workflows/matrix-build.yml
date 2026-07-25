@@ -11,7 +11,9 @@ concurrency:
 jobs:
   build:
     name: Trakt
-    secrets: inherit
+    secrets:
+      ATTIC_ENDPOINT: ${{ secrets.ATTIC_ENDPOINT }}
+      ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
 
     uses: rocq-trakt/trakt/.github/workflows/matrix-template.yml@master
     with:

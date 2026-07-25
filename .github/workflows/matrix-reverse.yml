@@ -11,7 +11,9 @@ concurrency:
 jobs:
   reverse:
     name: ${{ matrix.name }}
-    secrets: inherit
+    secrets:
+      ATTIC_ENDPOINT: ${{ secrets.ATTIC_ENDPOINT }}
+      ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
 
     strategy:
       fail-fast: false
