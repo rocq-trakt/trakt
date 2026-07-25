@@ -28,8 +28,8 @@ jobs:
       - name: Get all versions
         id: discover
         run: |
-          packages=$(nix eval --json ${{ inputs.repository }}#checks.x86_64-linux --apply builtins.attrNames)
-          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+          PACKAGES=$(nix eval --json ${{ inputs.repository }}#checks.x86_64-linux --apply builtins.attrNames)
+          echo "packages=${PACKAGES}" >> "$GITHUB_OUTPUT"
 
   matrix:
     needs: discover
@@ -44,16 +44,23 @@ jobs:
       - uses: actions/checkout@v7
       - uses: nixbuild/nix-quick-install-action@v35
 
+      - name: Check whether the build is in cache
+        id: cache
+        run: |
+          HASH="$(nix eval --raw ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }})"
+          HTTP_STATUS="$(curl ${{ secrets.ATTIC_ENDPOINT }}/smtcoq/${HASH:11:32}.narinfo -H 'Authorization: Bearer ${{ secrets.ATTIC_TOKEN }}' -o /dev/null -s -w '%{http_code}')"
+          echo "HTTP code status for ${HASH}: ${HTTP_STATUS}"
+          echo "status=${HTTP_STATUS}" >> "$GITHUB_OUTPUT"
+
       - uses: ryanccn/attic-action@v0
+        if: ${{ steps.cache.outputs.status != '200' }}
         with:
           cache: smtcoq
           endpoint: ${{ secrets.ATTIC_ENDPOINT }}
           token: ${{ secrets.ATTIC_TOKEN }}
 
       - name: Build specific version
-        if: ${{ inputs.override-input == '' }}
-        run: nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
-
-      - name: Build specific version
-        if: ${{ inputs.override-input != '' }}
-        run: nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --override-input ${{ inputs.override-input }} . --print-build-logs
+        if: ${{ steps.cache.outputs.status != '200' }}
+        run: |
+          ${{ inputs.override-input == '' }} && nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --print-build-logs
+          ${{ inputs.override-input != '' }} && nix build ${{ inputs.repository }}#checks.x86_64-linux.${{ matrix.package }} --override-input ${{ inputs.override-input }} . --print-build-logs
