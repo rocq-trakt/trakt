@@ -2,9 +2,12 @@ let
   mkRocqPackages =
     base:
     base.overrideScope (
-      final: _: {
-        zify = final.callPackage ./zify.nix { };
+      final: prev: {
+        rocq-elpi = final.callPackage ./rocq-elpi.nix { inherit (prev) rocq-elpi; };
         trakt = final.callPackage ./trakt.nix { };
+
+        # NOTE: Remove these packages when they will be available upstream
+        zify = final.callPackage ./zify.nix { };
       }
     );
 in
