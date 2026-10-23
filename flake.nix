@@ -55,6 +55,24 @@
             inherit (pkgs.rocqPackages) trakt;
 
             default = trakt;
+
+            # nix develop .#buggy.passthru.rocq-elpi --impure
+            buggy = (self.lib.mkTrakt pkgs {
+              rocq = "master";
+              stdlib = "master";
+              rocq-elpi = "master";
+              trakt = "master";
+            }).value;
+
+            # nix develop .#buggy2 --impure
+            buggy2 = (pkgs.rocqPackages.overrideScope (_: prev: {
+              rocq-elpi = prev.rocq-elpi.override {
+                version = "master";
+              };
+              rocq-core = prev.rocq-core.override {
+                version = "master";
+              };
+            })).rocq-elpi;
           };
 
           checks = pkgs.lib.listToAttrs (

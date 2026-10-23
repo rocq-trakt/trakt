@@ -17,6 +17,10 @@ let
   case = case: out: { inherit case out; };
 in
 mkRocqDerivation rec {
+  passthru = {
+    inherit rocq-elpi;
+  };
+
   inherit version;
 
   owner = "rocq-trakt";
