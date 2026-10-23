@@ -31,10 +31,11 @@ overrideRocqDerivation (rec {
     let
       rocq-elpi-version = if version == null then defaultVersion else version;
       elpi-version = switch rocq-elpi-version [
+        (case (versions.isGe "3.5.0") "3.8.0")
         (case (versions.isGe "3.4.0") "3.7.1")
         (case (versions.isGe "3.3.1") "3.6.2")
         (case (versions.isGe "3.2.0") "3.4.5")
-      ] "3.7.1";
+      ] "3.8.0";
     in
     [
       rocq-core.ocamlPackages.findlib
