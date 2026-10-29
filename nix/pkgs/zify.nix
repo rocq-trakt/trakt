@@ -6,24 +6,30 @@
   # Dependencies
   hierarchy-builder,
   mathcomp,
+  micromega-plugin,
   rocq-core,
   rocq-elpi,
   stdlib,
 }:
 
 let
-  pinned = {
-    # NOTE: A Rocq 9.2 compatible version is not available for 26.05
-    mathcomp = lib.overrideRocqDerivation rec {
-      version = "91d97df9cf3204b4dab84f4e24bc633e84b6473d";
-      release.${version}.hash = "sha256-U91YDTfmT7a6tMoN0+FcGjUWg3iHLlWLWRj/DFdKjks=";
-      releaseRev = lib.id;
-    } mathcomp;
-  };
+  micromega-plugin' = lib.overrideRocqDerivation rec {
+    version = "1.1.1";
+    release.${version}.hash = "sha256-TIUbrMRoPkLx3QcBGTAEdnzqt4HcKOHaQwJWUtBXUQA";
+  } micromega-plugin;
 
-  mathcomp' = pinned.mathcomp.override {
+  pinned = {
     hierarchy-builder = hierarchy-builder.override {
-      version = "1.10.2";
+      version = "1.10.3";
+    };
+
+    micromega-plugin = micromega-plugin'.override {
+      version = "1.1.0";
+    };
+
+    mathcomp = mathcomp.override {
+      inherit (pinned) hierarchy-builder micromega-plugin;
+      version = "2.6.0";
     };
   };
 in
@@ -35,7 +41,7 @@ mkRocqDerivation rec {
   pname = "zify";
 
   propagatedBuildInputs = [
-    mathcomp'
+    pinned.mathcomp
     stdlib
   ];
 

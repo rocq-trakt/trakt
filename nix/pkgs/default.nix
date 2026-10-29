@@ -18,4 +18,5 @@ final: prev: {
   rocqPackages_9_0 = mkRocqPackages prev.rocqPackages_9_0;
   rocqPackages_9_1 = mkRocqPackages prev.rocqPackages_9_1;
   rocqPackages_9_2 = mkRocqPackages prev.rocqPackages_9_2;
+  rocqPackages_9_3 = mkRocqPackages prev.rocqPackages_9_3;
 }

@@ -1,6 +1,7 @@
 {
   # Librairies
   lib,
+  fetchurl,
 
   # Previous overlay
   rocq-core,
@@ -21,7 +22,7 @@ overrideRocqDerivation (rec {
   pname = "rocq-elpi";
 
   defaultVersion = switch rocq-core.rocq-version [
-    (case (range "9.0" "9.2") "3.5.0")
+    (case (range "9.0" "9.3") "3.5.1")
     (case (range "9.0" "9.2") "3.4.0")
     (case (range "9.0" "9.2") "3.3.1")
     (case (range "9.0" "9.1") "3.2.0")
@@ -31,7 +32,7 @@ overrideRocqDerivation (rec {
     let
       rocq-elpi-version = if version == null then defaultVersion else version;
       elpi-version = switch rocq-elpi-version [
-        (case (versions.isGe "3.5.0") "3.8.0")
+        (case (versions.isGe "3.5.1") "3.8.0")
         (case (versions.isGe "3.4.0") "3.7.1")
         (case (versions.isGe "3.3.1") "3.6.2")
         (case (versions.isGe "3.2.0") "3.4.5")
@@ -44,7 +45,7 @@ overrideRocqDerivation (rec {
     ];
 
   release = {
-    "3.5.0".sha256 = "sha256-k6kbkFRngQmKUP0owiFOxJzdJVRte5IlZWG4Tpqd3YU=";
+    "3.5.1".sha256 = "sha256-uveSlaiDRCquvWqXuXL9qhnf83T8PUdceDGB5XEUoVc=";
     "3.4.0".sha256 = "sha256-8x2Sa/+pUpXEqB+NdyfOyw6Yyzp6Q1k5LnhrjG/qJNM=";
     "3.3.1".sha256 = "sha256-/ehf2g/+riXOmfXs90Mx0PnKA0wJyombHK+rbVePjw0=";
     "3.2.0".sha256 = "sha256-FyYG/8lEyt1L/paMez8jYAnnUE+sxIp4Da5MztmwJ/c=";
