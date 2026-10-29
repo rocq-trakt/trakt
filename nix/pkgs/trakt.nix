@@ -39,10 +39,13 @@ mkRocqDerivation rec {
         let
           name = baseNameOf path;
         in
-        type == "directory"
-        || name == "dune"
-        || name == "dune-project"
-        || builtins.match ".*\\.(v|elpi)$" name != null;
+        (lib.cleanSourceFilter path type && name != "_build")
+        && (
+          type == "directory"
+          || name == "dune"
+          || name == "dune-project"
+          || builtins.match ".*\\.(v|elpi)$" name != null
+        );
     };
   };
 
