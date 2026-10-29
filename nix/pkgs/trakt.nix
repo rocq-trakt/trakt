@@ -46,10 +46,6 @@ mkRocqDerivation rec {
     };
   };
 
-  nativeBuildInputs = [
-    git
-  ];
-
   propagatedBuildInputs = [
     rocq-elpi
     stdlib
