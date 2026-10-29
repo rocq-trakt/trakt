@@ -58,7 +58,7 @@
           };
 
           checks = pkgs.lib.listToAttrs (
-            map (self.lib.mkTrakt pkgs) (self.lib.mkRocqConstraints pkgs.rocqPackages "trakt")
+            map (self.lib.mkTrakt pkgs) (self.lib.mkRocqConstraints pkgs "trakt")
           );
         };
     };
